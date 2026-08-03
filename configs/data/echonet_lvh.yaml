@@ -1,0 +1,7 @@
+_base: ../base.yaml
+name: echonet_lvh
+manifest: manifests/echonet_lvh.csv
+image_size: 112
+threshold_quantile: 0.9
+official_threshold: 1.3274
+threshold_tolerance: 0.001

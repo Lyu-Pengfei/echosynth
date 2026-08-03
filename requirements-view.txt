@@ -1,0 +1,6 @@
+# Intentionally separate from requirements.txt: never import TensorFlow and PyTorch together.
+numpy==1.26.4
+pandas==2.2.3
+Pillow==11.0.0
+tensorflow==2.17.1
+tf2onnx==1.16.1

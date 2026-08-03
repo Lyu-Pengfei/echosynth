@@ -1,0 +1,7 @@
+_base: duke_two_step_allview.yaml
+name: echonet_lvh_wallthickness
+data: {manifest: manifests/echonet_lvh.csv, image_size: 112, views: all}
+task: {type: binary_wall_thickness}
+generator:
+  _base: ../diffusion/echonet_lvh_wt.yaml
+paradigms: [TRTR, TRSTR]

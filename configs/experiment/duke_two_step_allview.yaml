@@ -1,0 +1,12 @@
+_base: ../base.yaml
+name: duke_two_step_allview
+data: {manifest: manifests/duke_master.csv, image_size: 112, views: all}
+task: {type: two_step, compose: product, compose_order: per_image_then_encounter_mean}
+classifier:
+  _base: ../classifier/compactcnn.yaml
+generator:
+  _base: ../diffusion/duke_ca.yaml
+  ckpt: results/runs/<id>/ckpt/ema_best.pt
+paradigms: [TRTR, TRSTR, BOOTSTRAP]
+synthetic_grid: {start: 100, stop: 3000, step: 100}
+eval: {unit: encounter_id, metrics: [auroc, auprc], ci: delong}

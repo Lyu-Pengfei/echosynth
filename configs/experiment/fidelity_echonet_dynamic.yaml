@@ -1,0 +1,4 @@
+_base: ../base.yaml
+name: fidelity_echonet_dynamic
+data: {manifest: manifests/echonet_dynamic.csv, image_size: 112}
+task: {type: fidelity}

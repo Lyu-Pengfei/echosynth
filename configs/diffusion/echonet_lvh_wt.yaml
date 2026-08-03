@@ -1,0 +1,3 @@
+_base: duke_ca.yaml
+name: echonet_lvh_wt
+classes: {normal: 0, thickened: 1}

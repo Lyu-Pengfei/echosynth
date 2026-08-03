@@ -1,0 +1,18 @@
+_base: ../base.yaml
+name: duke_ca
+image_size: 112
+channels: 1
+classes: {CA: 0, LVH: 1, GEN: 2}
+dim: 64
+dim_mults: [1, 2, 4, 8]
+full_attn: [false, false, false, true]
+timesteps: 1000
+sampling_timesteps: 500
+beta_schedule: sigmoid
+objective: pred_noise
+batch_size: 16
+lr: 0.00008
+cond_drop_prob: 0.1
+cond_scale: 2.0
+ema: true
+fid: false

@@ -1,0 +1,15 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.7.3
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+  - repo: local
+    hooks:
+      - id: no-phi
+        name: reject PHI-like and binary research data
+        entry: python scripts/check_no_phi.py
+        language: system
+        pass_filenames: true
+        types: [file]

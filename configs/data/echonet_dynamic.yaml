@@ -1,0 +1,5 @@
+_base: ../base.yaml
+name: echonet_dynamic
+manifest: manifests/echonet_dynamic.csv
+image_size: 112
+lvef_thresholds: {normal: 55.0, mild: 40.0}

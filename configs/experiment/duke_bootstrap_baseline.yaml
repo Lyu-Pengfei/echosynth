@@ -1,0 +1,3 @@
+_base: duke_two_step_allview.yaml
+name: duke_bootstrap_baseline
+paradigms: [TRTR, TRSTR, BOOTSTRAP]

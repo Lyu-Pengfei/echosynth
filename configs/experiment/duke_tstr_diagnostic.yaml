@@ -1,0 +1,4 @@
+_base: duke_two_step_allview.yaml
+name: duke_tstr_diagnostic
+task: {type: binary_ca}
+paradigms: [TRTR, TSTR]

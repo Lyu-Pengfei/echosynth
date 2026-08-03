@@ -1,0 +1,14 @@
+_base: ../base.yaml
+name: duke
+manifest: manifests/duke_master.csv
+image_size: 112
+views: all
+standard_sop_class_uids:
+  - "1.2.840.10008.5.1.4.1.1.6.1"
+  - "1.2.840.10008.5.1.4.1.1.3.1"
+qc:
+  canny_low: 50
+  canny_high: 150
+preprocess:
+  reference: results/reference_sector.json
+  qa_sheet: results/preprocess_qa.png

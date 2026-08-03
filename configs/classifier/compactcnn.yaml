@@ -1,0 +1,11 @@
+channels: [32, 64, 128, 256]
+epochs: 100
+patience: 15
+lr: 0.001
+batch_size: 32
+dropout: 0.3
+augmentation:
+  horizontal_flip: 0.5
+  rotation_degrees: 10
+  brightness: 0.2
+  contrast: 0.2

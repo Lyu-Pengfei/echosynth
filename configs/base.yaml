@@ -1,0 +1,8 @@
+seed: 2024
+runtime:
+  num_workers: 4
+  deterministic: true
+  device: auto
+paths:
+  results: results
+  manifests: manifests
