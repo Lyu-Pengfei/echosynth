@@ -14,7 +14,7 @@ from PIL import Image
 
 from echosynth.classify.paradigms import run_experiment
 from echosynth.data.manifest import write_manifest
-from echosynth.data.splits import make_encounter_splits
+from echosynth.data.splits import make_patient_splits
 from echosynth.generative.sample import generate
 from echosynth.generative.trainer import train_diffusion
 from echosynth.report.figures import make_figures
@@ -65,7 +65,7 @@ def _real_manifest(root: Path) -> Path:
                     "qc_reason": "",
                 }
             )
-    split = make_encounter_splits(pd.DataFrame(rows), seed=2024)
+    split = make_patient_splits(pd.DataFrame(rows), seed=2024)
     manifest = root / "master.csv"
     write_manifest(split, manifest)
     return manifest

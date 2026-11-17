@@ -7,7 +7,7 @@ import pandas as pd
 import pytest
 from sklearn.metrics import roc_auc_score
 
-from echosynth.eval.aggregate import to_encounter_level
+from echosynth.eval.aggregate import to_encounter_level, to_patient_level
 from echosynth.eval.delong import (
     delong_auc_variance,
     delong_paired_delta_ci,
@@ -60,3 +60,17 @@ def test_encounter_aggregation_and_consistency() -> None:
     bad.loc[2, "label"] = 0
     with pytest.raises(ValueError, match="inconsistent label"):
         to_encounter_level(bad)
+
+
+def test_patient_aggregation_weights_encounters_equally() -> None:
+    frame = pd.DataFrame(
+        {
+            "encounter_id": ["a", "a", "b"],
+            "patient_id": ["p", "p", "p"],
+            "label": [1, 1, 1],
+            "p": [0.2, 0.4, 0.9],
+        }
+    )
+    result = to_patient_level(frame)
+    assert result.loc[0, "p"] == pytest.approx(0.6)
+    assert result.loc[0, "n_encounters"] == 2

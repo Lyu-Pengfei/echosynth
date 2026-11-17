@@ -177,25 +177,3 @@ def assert_manifest_invariants(df: pd.DataFrame) -> None:
     if bad_synthetic.any():
         ids = df.loc[bad_synthetic, "image_id"].astype(str).tolist()
         raise LeakageError(f"Synthetic images outside train split: {ids[:20]}")
-    if {"group", "encounter_id"}.issubset(df) and df["split"].notna().all():
-        encounters = df[["encounter_id", "group", "split"]].drop_duplicates()
-        if (
-            len(encounters) == 4697
-            and set(encounters["group"].astype(str)) == ManifestSchema.groups
-        ):
-            expected = {
-                ("CA", "train"): 216,
-                ("CA", "val"): 46,
-                ("CA", "test"): 47,
-                ("GEN", "train"): 1542,
-                ("GEN", "val"): 330,
-                ("GEN", "test"): 331,
-                ("LVH", "train"): 1529,
-                ("LVH", "val"): 328,
-                ("LVH", "test"): 328,
-            }
-            actual = encounters.groupby(["group", "split"], observed=True).size().to_dict()
-            if actual != expected:
-                raise LeakageError(
-                    f"Duke Table 1 split counts differ: {actual}; expected {expected}"
-                )

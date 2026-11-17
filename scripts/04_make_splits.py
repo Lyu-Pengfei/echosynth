@@ -1,4 +1,4 @@
-"""CLI for deterministic encounter-level splits."""
+"""CLI for deterministic unique-patient splits."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from pathlib import Path
 import pandas as pd
 
 from echosynth.data.manifest import write_manifest
-from echosynth.data.splits import make_encounter_splits
+from echosynth.data.splits import make_patient_splits
 
 
 def main() -> None:
@@ -17,7 +17,7 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=2024)
     args = parser.parse_args()
     frame = pd.read_csv(args.manifest)
-    result = make_encounter_splits(frame, seed=args.seed)
+    result = make_patient_splits(frame, seed=args.seed)
     write_manifest(result, args.manifest)
     print(result.groupby(["group", "split"]).size())
 

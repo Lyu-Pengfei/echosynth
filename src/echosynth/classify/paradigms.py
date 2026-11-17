@@ -18,7 +18,7 @@ from echosynth.classify.transforms import build_transform
 from echosynth.classify.two_step import compose_two_step
 from echosynth.data.datasets import EchoClassificationDataset
 from echosynth.data.manifest import assert_manifest_invariants, read_manifest
-from echosynth.eval.aggregate import to_encounter_level
+from echosynth.eval.aggregate import to_patient_level
 from echosynth.eval.delong import delong_ci, delong_paired_delta_ci
 from echosynth.eval.guard import TestSetGuard
 from echosynth.eval.metrics import auprc, auroc
@@ -251,7 +251,7 @@ def _predict_task(
     output = frame[["encounter_id", "patient_id", "group", "split"]].copy()
     output["label"] = frame["group"].astype(str).eq("CA").astype(int)
     output["p"] = probabilities
-    return to_encounter_level(output)
+    return to_patient_level(output)
 
 
 def _grid(settings: Mapping[str, Any]) -> list[int]:
@@ -347,7 +347,7 @@ def run_experiment(config: Config | Mapping[str, Any]) -> ExperimentResult:
             "auroc": auc,
             "auroc_ci": [ci_low, ci_high],
             "auprc": auprc(predictions["label"], predictions["p"]),
-            "n_encounters": len(predictions),
+            "n_patients": len(predictions),
         }
         predictions.to_csv(run_dir / f"predictions_{paradigm}.csv", index=False)
     if "TRTR" in prediction_frames:
@@ -355,8 +355,10 @@ def run_experiment(config: Config | Mapping[str, Any]) -> ExperimentResult:
         for paradigm, predictions in prediction_frames.items():
             if paradigm == "TRTR":
                 continue
-            merged = baseline[["encounter_id", "label", "p"]].merge(
-                predictions[["encounter_id", "p"]], on="encounter_id", suffixes=("_trtr", "_arm")
+            merged = baseline[["patient_id", "label", "p"]].merge(
+                predictions[["patient_id", "p"]],
+                on="patient_id",
+                suffixes=("_trtr", "_arm"),
             )
             delta = delong_paired_delta_ci(merged["label"], merged["p_trtr"], merged["p_arm"])
             metrics[paradigm]["delta_vs_trtr"] = {

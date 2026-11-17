@@ -35,5 +35,5 @@ unlicensed project-specific source is copied here.
 ## hcm_duke_model
 
 `rhenaog/hcm_duke_model` has no published license. No source is copied. EchoSynth independently
-implements only the described behaviors: background masking, encounter-level aggregation,
+implements only the described behaviors: background masking, image-to-encounter aggregation,
 and best-checkpoint selection on validation AUROC.

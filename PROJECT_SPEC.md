@@ -42,7 +42,7 @@ prompts for a local coding agent. Nothing in the build prompts may contradict th
 
 | Repo | License | What we take | What we must change |
 |---|---|---|---|
-| `MuhangTian/synthetic-medical-image` | none stated | Overall shape: `model/`, `preprocess/`, `train.py`, `sweep/*.yaml`, `shell/*.sh` SLURM pattern. `model/ddpm.py` is a vendored copy of lucidrains `denoising-diffusion-pytorch` (+ `attend.py`, `fid_evaluation.py`). | Its `Unet`/`GaussianDiffusion` are **unconditional**. We need the classifier-free-guidance variant (`denoising_diffusion_pytorch/classifier_free_guidance.py` upstream) so the U-Net accepts `classes` and `cond_drop_prob`. Its `Dataset` returns an image only — we need `(image, class_idx)`. Its `train_test_split` moves files on disk by integer index — replace entirely with an **encounter-level** manifest split. |
+| `MuhangTian/synthetic-medical-image` | none stated | Overall shape: `model/`, `preprocess/`, `train.py`, `sweep/*.yaml`, `shell/*.sh` SLURM pattern. `model/ddpm.py` is a vendored copy of lucidrains `denoising-diffusion-pytorch` (+ `attend.py`, `fid_evaluation.py`). | Its `Unet`/`GaussianDiffusion` are **unconditional**. We need the classifier-free-guidance variant (`denoising_diffusion_pytorch/classifier_free_guidance.py` upstream) so the U-Net accepts `classes` and `cond_drop_prob`. Its `Dataset` returns an image only — we need `(image, class_idx)`. Its `train_test_split` moves files on disk by integer index — replace entirely with a **unique-patient** manifest split. |
 | `raventan95/echo-view-classifier` | MIT (attribution required) | `classify.py` inference pattern; the 8-view label map `{plax, psax-av, psax-mv, psax-ap, a4c, a5c, a3c, a2c}`; the 224×224 RGB input contract; pretrained VGG16 `.h5` weights (Dropbox, ~0.939 accuracy). | TF1.12/Keras `predict_generator` is deprecated. Isolate in its own env or export to ONNX (§4.4). Never let TF and PyTorch share a process. |
 | `rhenaog/hcm_duke_model` | **no license** | *Ideas only, no copied code.* Namely: encounter/study-level probability aggregation before AUC; select best checkpoint on validation AUC; masked-background loading; `save_checkpoint`/`load_checkpoint` shape; `r2plus1d_18` as the optional future video backbone. | The published script is a flat top-level script with hard-coded paths, an `r2plus1d_18` video model, and a validation loop with a duplicated `valid_running_loss` accumulation bug. Reimplement from scratch as library code. |
 
@@ -117,8 +117,8 @@ design constraint — get it wrong and every downstream stage silently breaks.
 | column | type | notes |
 |---|---|---|
 | `image_id` | str | stable hash, primary key |
-| `patient_id` | str | de-identified surrogate |
-| `encounter_id` | str | **unit of splitting and of final evaluation** |
+| `patient_id` | str | de-identified surrogate; **unit of splitting and final evaluation**; all encounters remain together |
+| `encounter_id` | str | encounter identifier used for first-stage probability aggregation |
 | `group` | enum | `CA` \| `LVH` \| `GEN` |
 | `study_date` | date | CA: 2004-06→2024-03; controls: 2015-01→2023-12 |
 | `dicom_path` | path | source; never committed |
@@ -328,7 +328,9 @@ Channel progression `1→32→64→128→256` (config-driven; record the exact w
 **`transforms.py`** — train-time augmentation exactly as line 208–210: random horizontal
 flip, rotation up to ±10°, random brightness and contrast jitter. **Val/test: no augmentation.**
 
-**`engine.py`** — train/eval loop. Model selection on **validation encounter-level AUROC**.
+**`engine.py`** — train/eval loop. Image predictions are first aggregated within encounter;
+the experiment layer then aggregates encounters within patient and selects models using
+**validation patient-level AUROC**.
 Early stopping with patience. The test partition is touched exactly once, at the end.
 
 **`two_step.py`** (paper lines 221–226):
@@ -506,12 +508,13 @@ entropy normalization (`K` uniform ⇒ 1.0); manifest invariants.
 
 **8.2 Integration (smoke)** — a `tests/fixtures/tiny/` set of ~60 procedurally generated
 112×112 wedge images across 3 classes and 20 encounters. End-to-end: split → 200-step
-diffusion train → sample 10/class → CompactCNN 3 epochs → encounter-level AUROC → report.
+diffusion train → sample 10/class → CompactCNN 3 epochs → patient-level AUROC → report.
 Must finish in **< 5 minutes on CPU**. This is the agent's primary feedback loop.
 
 **8.3 Leakage tests** — (a) a `test` row planted in the generator dataloader raises;
 (b) synthetic rows in val/test raise; (c) `TestSetGuard` raises on a second access;
-(d) an encounter split across partitions raises.
+(d) an encounter split across partitions raises; (e) encounters from one patient split across
+partitions raise.
 
 **8.4 Repo hygiene** — pre-commit hook rejecting `*.dcm`, `*.png`, `*.pt`, `*.h5`, `data/**`,
 and any file matching a PHI-ish pattern (MRN-like digit runs, dates of birth).
@@ -538,10 +541,10 @@ No email addresses, partitions, or paths hard-coded — read them from
 These are genuinely underdetermined by the manuscript. Pick an answer, write it into
 `configs/`, and record it in `docs/DECISIONS.md` so the methods section and the code agree.
 
-1. **Two-step composition.** The paper describes the two stages but not how their outputs
-   combine into the single encounter-level CA score behind AUROC 0.924. `product` is the
-   natural reading; `stage2_only` (evaluating CA vs LVH among predicted-abnormal) is the
-   other plausible reading and gives different numbers. **This must be nailed down.**
+1. **Two-step composition.** The two stage probabilities are combined per image, averaged
+   within encounter, and then averaged across encounters within patient. `product` is the
+   reference composition; `stage2_only` is retained only as an explicitly named diagnostic
+   alternative and must not be mixed with the primary patient-level endpoint.
 2. **Averaging order.** Image-level probabilities are averaged within encounter (line 244) —
    but for a two-step model, do you average each stage's probability then compose, or compose
    per image then average? Default: compose per image, then average.

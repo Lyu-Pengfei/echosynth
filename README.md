@@ -1,8 +1,17 @@
 # EchoSynth
 
 Reference implementation for *Synthetic Echocardiograms from Diffusion Models in Rare
-Cardiovascular Disease*. The pipeline is manifest-driven, deterministic, and designed to
-prevent encounter and patient leakage. It never downloads data or weights at runtime.
+Cardiovascular Disease*. The public pipeline is manifest-driven and deterministic. It never
+downloads data or weights at runtime.
+
+## Revision-analysis status
+
+This reference pipeline implements the revised evaluation unit: it assigns every encounter from
+the same patient to one partition, averages image predictions within encounter and then averages
+encounter predictions within patient, and evaluates held-out patients. Patient identifiers are
+hashed before manifest export. Protected manifests, images, model weights, and institutional run
+artifacts are not included in this repository, so the reported clinical results cannot be
+reconstructed without the governed Duke data.
 
 ## Installation
 
@@ -19,18 +28,18 @@ The legacy Keras view model is deliberately isolated. Create a second environmen
 `requirements-view.txt`, or use the preferred ONNX inference path. Never import TensorFlow
 and PyTorch in the same process.
 
-## Twelve-step pipeline
+## Twelve-step reference pipeline
 
 1. Ingest DICOM or EchoNet data into a validated manifest.
 2. Run the eight-feature QC screen and manually review flagged frames.
 3. Register, sector-mask, resize, and crop frames to 112×112 grayscale.
 4. Optionally classify views; the primary endpoint remains all-view.
-5. Create encounter-level train/validation/test splits.
+5. Create unique-patient train/validation/test splits, keeping every encounter from one patient together.
 6. Train a class-conditional diffusion model on the training partition only.
-7. Sample synthetic training images; the paper defaults use the 500-step DDIM path.
-8. Train CompactCNN classifiers and select checkpoints on encounter-level validation AUROC.
+7. Sample synthetic training images using 100-step DDIM sampling.
+8. Train CompactCNN classifiers and select checkpoints on patient-level validation AUROC.
 9. Select the synthetic count on validation data, then access test exactly once.
-10. Evaluate encounter-level AUROC/AUPRC and paired DeLong intervals.
+10. Evaluate patient-level AUROC/AUPRC and paired DeLong intervals after two-stage aggregation.
 11. Run fidelity, discriminator, embedding, and descriptive survey analyses.
 12. Regenerate tables and figures solely from run artifacts.
 

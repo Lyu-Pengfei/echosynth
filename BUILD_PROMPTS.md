@@ -1,5 +1,10 @@
 # Build Prompts for `echosynth`
 
+> Historical provenance note: this file preserves prompts used while constructing the original
+> encounter-level workflow. The released reference implementation now uses unique-patient
+> partitioning and image-to-encounter-to-patient aggregation, as documented in `README.md`,
+> `MODEL_CARD.md`, and `PROJECT_SPEC.md`.
+
 Hand these to a local coding agent **in order**. Each prompt is self-contained and ends with
 acceptance criteria the agent must satisfy before moving on.
 

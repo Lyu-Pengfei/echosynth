@@ -1,4 +1,7 @@
-"""Classifier training and guarded encounter-level evaluation loops."""
+"""Classifier training and guarded image-to-encounter evaluation loops.
+
+Patient-level aggregation and model comparison are performed by the experiment layer.
+"""
 
 from __future__ import annotations
 
@@ -47,7 +50,7 @@ def evaluate(
     guard: TestSetGuard | None = None,
     device: torch.device | str = "cpu",
 ) -> EvaluationResult:
-    """Evaluate image probabilities and report only encounter-level AUROC."""
+    """Aggregate image probabilities within encounter for downstream patient scoring."""
     records: list[dict[str, object]] = []
     model.eval()
     with _evaluation_context(split, guard), torch.no_grad():
@@ -93,7 +96,7 @@ def train_classifier(
     seed: int = 2024,
     device: torch.device | str = "cpu",
 ) -> TrainingResult:
-    """Select best checkpoint on validation encounter AUROC, never test loss."""
+    """Select a checkpoint using validation data only, never test loss."""
     set_seed(seed)
     model.to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
