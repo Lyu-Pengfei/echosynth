@@ -1,0 +1,43 @@
+project_root: /mounted/patient_sensitivity
+python: /mounted/patient_sensitivity/.venv/bin/python
+
+inputs:
+  real_manifest: work/full_revision/manifests/ca_master.csv
+  diffusion_manifest: work/full_revision/manifests/ca_synthetic.csv
+  prediction_glob: results/full_revision/runs/ca_revision_full_seed*/predictions_*.csv
+  echonet_lvh_candidates:
+    - /mounted/echonet_lvh/manifests/echonet_lvh.csv
+    - /mounted/echonet_lvh/data/processed/echonet_lvh.csv
+    - /mounted/patient_sensitivity/manifests/echonet_lvh.csv
+
+analysis:
+  seeds: [2024, 2025, 2026, 2027, 2028]
+  common_year_start: 2015
+  common_year_end: 2023
+  bootstrap_replicates: 2000
+  minimum_vendor_cases: 5
+  minimum_vendor_controls: 20
+  max_fidelity_images: 1500
+  image_size: 112
+
+anatomy:
+  epochs: 30
+  patience: 6
+  batch_size: 64
+  learning_rate: 0.001
+  num_workers: 4
+  minimum_test_r2: 0.0
+
+gan:
+  seed: 2024
+  latent_dim: 128
+  batch_size: 64
+  training_steps: 20000
+  learning_rate_generator: 0.0002
+  learning_rate_discriminator: 0.0002
+  ema_decay: 0.999
+  sample_per_class: 2000
+  classifier_epochs: 100
+  classifier_patience: 15
+  classifier_batch_size: 64
+  synthetic_counts: [500, 1000, 1500, 2000]

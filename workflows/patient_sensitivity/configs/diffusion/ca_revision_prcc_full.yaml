@@ -1,0 +1,12 @@
+seed: 2024
+name: ca_revision_prcc_full_diffusion
+image_size: 112
+classes: {CA: 0, LVH: 1, GEN: 2}
+dim: 64
+dim_mults: [1, 2, 4, 8]
+full_attn: [false, false, false, true]
+timesteps: 1000
+sampling_timesteps: 100
+batch_size: 16
+lr: 0.00008
+cond_scale: 2.0

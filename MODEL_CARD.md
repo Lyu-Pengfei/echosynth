@@ -19,8 +19,10 @@ counts before the test partition is accessed.
 
 The diffusion model consumes a 112 by 112 single-channel image, a diffusion timestep, and a class
 label. The downstream classifier consumes a 112 by 112 single-channel image and outputs class
-probabilities. The reference configuration uses 1,000 forward diffusion steps and 100-step DDIM
-sampling with classifier-free guidance scale 2.0.
+probabilities. The full-archive sensitivity configuration uses 1,000 forward diffusion steps and
+100-step DDIM sampling with classifier-free guidance scale 2.0. The generic root
+legacy configuration uses 500 DDIM steps. See the README analysis map; these
+configurations must not be silently interchanged.
 
 ## Limitations
 

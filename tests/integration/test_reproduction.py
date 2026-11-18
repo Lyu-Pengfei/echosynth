@@ -1,4 +1,8 @@
-"""Real-data target assertions; skipped unless a consolidated metrics artifact is mounted."""
+"""Legacy target-range checks, not a demonstration of independent reproduction.
+
+The withdrawn EchoNet-LVH paired interval is deliberately not a target. These
+checks do not validate prediction provenance, CI estimation, or model equivalence.
+"""
 
 from __future__ import annotations
 
@@ -15,7 +19,6 @@ TARGETS = {
     "duke_ca_delta": (0.041, 0.013, 0.069),
     "echonet_lvh_trtr": (0.832, 0.784, 0.874),
     "echonet_lvh_trstr": (0.864, 0.824, 0.901),
-    "echonet_lvh_delta": (0.032, 0.021, 0.044),
     "duke_tstr": (0.889, 0.842, 0.936),
     "discriminator_test": (0.612, 0.537, 0.692),
 }

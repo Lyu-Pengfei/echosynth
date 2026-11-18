@@ -13,6 +13,31 @@ hashed before manifest export. Protected manifests, images, model weights, and i
 artifacts are not included in this repository, so the reported clinical results cannot be
 reconstructed without the governed Duke data.
 
+## Which analysis does this release implement?
+
+| Setting | Original primary Duke analysis | Full-archive patient sensitivity |
+|---|---|---|
+| Split | Encounter (repeat-patient overlap not excluded) | Unique patient, 70/15/15 |
+| Reported unit | Encounter | Patient; encounter outputs are secondary |
+| Reverse DDIM steps | 500 | 100 |
+| Classifier seeds | One configuration fit | 2024, 2025, 2026, 2027, 2028 |
+| Synthetic-count grid | 0–2000, step 100 | 500, 1000, 1500, 2000 |
+| Classifier batch size | 32 in the reference specification | 64 in the full-archive configuration |
+| Diffusion optimization steps | Original run provenance not reconstructed here | 10000, explicitly supplied on CLI |
+
+The root package is a general public **reference implementation**, not a bit-for-bit
+archive of either institutional run. Its current classifier aggregates by patient even
+though legacy YAML contains an encounter-unit field. Do not use that field to claim
+reconstruction of the original encounter-level results. The original predictions and
+selected synthetic count are not distributed or reconstructed by this release.
+
+For the full-archive workflow, use `workflows/patient_sensitivity/` and its separate
+source tree/configurations; see [the runbook](workflows/patient_sensitivity/README.md).
+This source snapshot is organized from the local revision workflow, not certified as
+identical to every script executed on PRCC. It records the distinction rather than
+silently substituting a different pipeline. Protected institutional data and run
+artifacts are required for clinical result reproduction.
+
 ## Installation
 
 Use Python 3.11 in an isolated environment:
@@ -28,7 +53,7 @@ The legacy Keras view model is deliberately isolated. Create a second environmen
 `requirements-view.txt`, or use the preferred ONNX inference path. Never import TensorFlow
 and PyTorch in the same process.
 
-## Twelve-step reference pipeline
+## Generic reference pipeline (not the archived clinical run)
 
 1. Ingest DICOM or EchoNet data into a validated manifest.
 2. Run the eight-feature QC screen and manually review flagged frames.
@@ -36,7 +61,7 @@ and PyTorch in the same process.
 4. Optionally classify views; the primary endpoint remains all-view.
 5. Create unique-patient train/validation/test splits, keeping every encounter from one patient together.
 6. Train a class-conditional diffusion model on the training partition only.
-7. Sample synthetic training images using 100-step DDIM sampling.
+7. Sample synthetic training images using explicitly configured DDIM steps (legacy default 500).
 8. Train CompactCNN classifiers and select checkpoints on patient-level validation AUROC.
 9. Select the synthetic count on validation data, then access test exactly once.
 10. Evaluate patient-level AUROC/AUPRC and paired DeLong intervals after two-stage aggregation.
@@ -47,7 +72,7 @@ Run `make <target>` for `ingest`, `qc`, `preprocess`, `views`, `splits`, `gen`, 
 `train`, `experiment`, `fidelity`, or `report`. Every command accepts local paths; there is no
 runtime network dependency.
 
-### Reproduction runbook
+### Generic reference example (not the manuscript sensitivity runbook)
 
 Mount de-identified source data outside this repository, then run the following in order:
 
@@ -93,5 +118,5 @@ contain exactly one event.
 | Actual run metrics | `results/runs/*/metrics.json` | experiment/evaluation code |
 | Tables and figures | run artifacts on disk | `make report` |
 
-Target values are assertions for mounted real data, never literals returned by analysis code.
+Target values are legacy range checks for a mounted metrics artifact, never literals returned by analysis code. Passing these checks is not independent reproduction of the paper. The withdrawn EchoNet-LVH paired interval is excluded.
 See `docs/DECISIONS.md` for manuscript ambiguities and their recorded resolutions.

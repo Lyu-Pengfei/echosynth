@@ -1,0 +1,28 @@
+seed: 2024
+name: ca_revision_prcc_full
+run_id: ca_revision_prcc_full_seed2024
+results_dir: results/full_revision/runs
+data:
+  manifest: work/full_revision/manifests/ca_master.csv
+  image_size: 112
+synthetic_manifest: work/full_revision/manifests/ca_synthetic.csv
+task:
+  type: two_step
+  compose: product
+  positive_label: CA
+  intermediate_label: LVH
+  general_label: GEN
+classifier:
+  channels: [32, 64, 128, 256]
+  epochs: 100
+  patience: 15
+  batch_size: 64
+  num_workers: 4
+  lr: 0.001
+  dropout: 0.3
+paradigms: [TRTR, TRSTR, BOOTSTRAP, CLASS_WEIGHTED, BALANCED_SAMPLING, TSTR]
+synthetic_grid: {start: 500, stop: 2000, step: 500}
+eval:
+  primary_unit: patient_id
+  secondary_unit: encounter_id
+  metrics: [auroc, auprc, brier, ece, sensitivity, specificity, ppv, npv]

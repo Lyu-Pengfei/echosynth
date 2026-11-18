@@ -1,0 +1,24 @@
+seed: 2024
+name: ca_revision_prcc_cap5
+run_id: sensitivity_cap5_seed2024
+results_dir: results/full_revision/runs
+data:
+  manifest: work/full_revision/manifests/ca_master_cap5.csv
+  image_size: 112
+synthetic_manifest: work/full_revision/manifests/ca_synthetic.csv
+task:
+  type: two_step
+  compose: product
+  positive_label: CA
+  intermediate_label: LVH
+  general_label: GEN
+classifier:
+  channels: [32, 64, 128, 256]
+  epochs: 100
+  patience: 15
+  batch_size: 64
+  num_workers: 4
+  lr: 0.001
+  dropout: 0.3
+paradigms: [TRTR]
+synthetic_grid: {start: 0, stop: 0, step: 1}

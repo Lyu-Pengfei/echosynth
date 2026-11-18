@@ -8,5 +8,5 @@ generator:
   _base: ../diffusion/duke_ca.yaml
   ckpt: results/runs/<id>/ckpt/ema_best.pt
 paradigms: [TRTR, TRSTR, BOOTSTRAP]
-synthetic_grid: {start: 100, stop: 3000, step: 100}
+synthetic_grid: {start: 0, stop: 2000, step: 100}
 eval: {unit: encounter_id, metrics: [auroc, auprc], ci: delong}
